@@ -1,0 +1,137 @@
+CREATE TABLE PI_Comerciante(
+	id int AUTO_INCREMENT NOT NULL,
+    nome varchar(100) NOT NULL,
+    cpf char(11) UNIQUE NOT NULL,
+    celular varchar(20),
+    telefone varchar(20),
+    email varchar(100) UNIQUE NOT NULL,
+    cnpj char(14),
+    data_cadastro datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Pix(
+	id int AUTO_INCREMENT NOT NULL,
+    chave varchar(32) NOT NULL,
+    tipo_chave ENUM('cpf','cnpj','email','telefone','aleatoria'),
+    id_comerciante int NOT NULL,
+    FOREIGN KEY(id_comerciante) REFERENCES PI_Comerciante(id),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Loja(
+	id int AUTO_INCREMENT NOT NULL,
+    nome varchar(100) NOT NULL,
+    descricao text NOT NULL,
+    status_loja ENUM('ativa', 'inativa') DEFAULT 'ativa',
+    data_cadastro datetime DEFAULT CURRENT_TIMESTAMP,
+    id_comerciante int NOT NULL,
+    FOREIGN KEY(id_comerciante) REFERENCES PI_Comerciante(id),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Categoria(
+	id int AUTO_INCREMENT NOT NULL,
+    nome varchar(100) NOT NULL,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_LojaCategoria(
+	id_loja int NOT NULL,
+    id_categoria int NOT NULL,
+    FOREIGN KEY(id_loja) REFERENCES PI_Loja(id),
+    FOREIGN KEY(id_categoria) REFERENCES PI_Categoria(id),
+    PRIMARY KEY(id_loja, id_categoria)
+);
+
+CREATE TABLE PI_Consumidor(
+	id int AUTO_INCREMENT NOT NULL,
+    nome varchar(100) NOT NULL,
+    cpf char(11) UNIQUE NOT NULL,
+    celular varchar(20),
+    email varchar(100) UNIQUE NOT NULL,
+    senha varchar(255) NOT NULL,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Avaliacao(
+	id int AUTO_INCREMENT NOT NULL,
+    nota int,
+    comentario varchar(255),
+    data_avaliacao datetime DEFAULT CURRENT_TIMESTAMP,
+    id_consumidor int NOT NULL UNIQUE,
+    id_loja int NOT NULL UNIQUE,
+    FOREIGN KEY(id_consumidor) REFERENCES PI_Consumidor(id),
+    FOREIGN KEY(id_loja) REFERENCES PI_Loja(id),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Administrador(
+	id int AUTO_INCREMENT NOT NULL,
+    nome varchar(100) NOT NULL,
+    email varchar(100) UNIQUE NOT NULL,
+    senha varchar(255) NOT NULL,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Denuncia(
+	id int AUTO_INCREMENT NOT NULL,
+    descricao text,
+    data_denuncia datetime DEFAULT CURRENT_TIMESTAMP,
+    status_denuncia ENUM('pendente', 'em_analise', 'resolvida') DEFAULT 'pendente',
+    id_loja int NOT NULL,
+    id_consumidor int NOT NULL,
+    id_administrador int,
+    FOREIGN KEY(id_loja) REFERENCES PI_Loja(id),
+    FOREIGN KEY(id_consumidor) REFERENCES PI_Consumidor(id),
+    FOREIGN KEY(id_administrador) REFERENCES PI_Administrador(id),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Endereco(
+	id int AUTO_INCREMENT NOT NULL,
+    numero varchar(10), 
+    bairro varchar(100),
+    rua varchar(100),
+    complemento varchar(100),
+    referencia varchar(255),
+    cidade varchar(100),
+    estado char(2),
+    cep char(8),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Localizacao(
+	id int AUTO_INCREMENT NOT NULL,
+    data_inicio date,
+    data_fim date,
+    horario_inicio TIME,
+	horario_fim TIME,
+    id_endereco int NOT NULL,
+    id_loja int NOT NULL,
+    FOREIGN KEY(id_endereco) REFERENCES PI_Endereco(id),
+    FOREIGN KEY(id_loja) REFERENCES PI_Loja(id),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_Evento(
+	id int AUTO_INCREMENT NOT NULL,
+    nome varchar(100) NOT NULL,
+    descricao text,
+	data_inicio date NOT NULL,
+    data_fim date,
+    horario_inicio time,
+    horario_fim time,
+    ativo boolean DEFAULT TRUE,
+    id_endereco int NOT NULL,
+    FOREIGN KEY(id_endereco) REFERENCES PI_Endereco(id),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE PI_ParticipacaoEvento(
+	id_loja int NOT NULL,
+    id_evento int NOT NULL,
+    FOREIGN KEY(id_loja) REFERENCES PI_Loja(id),
+    FOREIGN KEY(id_evento) REFERENCES PI_Evento(id),
+    PRIMARY KEY(id_loja, id_evento)
+);
